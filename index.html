@@ -1039,53 +1039,61 @@ if (!Array.isArray(questions) || questions.length === 0) {
 
         renderGeneratedQuiz(questions);
         generatorStatus.textContent = "Your quiz is ready!";
-      
-} catch (error) {
-  console.error("AI quiz unavailable; using demo quiz:", error);
+      } catch (error) {
+        console.error("AI quiz unavailable; using demo questions:", error);
 
-  const topicName = quizTopicInput.value.trim();
+        const topicName = quizTopicInput.value.trim();
+        const normalizedTopic = topicName.toLowerCase();
+        let demoQuestions;
 
-  const demoQuestions = [
-    {
-      question: `What is the best first step when learning ${topicName}?`,
-      options: [
-        "Understand its basic concepts and definitions",
-        "Skip the introduction",
-        "Memorize random facts without context",
-        "Avoid practising the topic"
-      ],
-      answer: 0,
-      explanation: "Start by understanding the foundations of the topic."
-    },
-    {
-      question: `Which method can help you remember ${topicName}?`,
-      options: [
-        "Never reviewing your notes",
-        "Practising recall and reviewing regularly",
-        "Reading once and never revisiting it",
-        "Ignoring mistakes"
-      ],
-      answer: 1,
-      explanation: "Active recall and spaced review help reinforce learning."
-    },
-    {
-      question: `How can you check your understanding of ${topicName}?`,
-      options: [
-        "Avoid all questions",
-        "Only look at the title",
-        "Explain the ideas in your own words and practise questions",
-        "Skip anything you find difficult"
-      ],
-      answer: 2,
-      explanation: "Explaining concepts and practising questions helps reveal what you understand."
-    }
-  ];
+        if (normalizedTopic.includes("chemical bond") || normalizedTopic.includes("bonding")) {
+          demoQuestions = [
+            {
+              question: "What type of bond forms when electrons are transferred from one atom to another?",
+              options: ["Covalent bond", "Ionic bond", "Metallic bond", "Hydrogen bond"],
+              answer: 1,
+              explanation: "An ionic bond is the electrostatic attraction between oppositely charged ions formed after electron transfer."
+            },
+            {
+              question: "What happens to electrons in a covalent bond?",
+              options: ["They are shared between atoms", "They are completely transferred", "They turn into protons", "They leave both atoms permanently"],
+              answer: 0,
+              explanation: "A covalent bond forms when atoms share one or more pairs of electrons."
+            },
+            {
+              question: "Which type of bond holds sodium and chlorine ions together in sodium chloride (NaCl)?",
+              options: ["Nonpolar covalent bond", "Metallic bond", "Ionic bond", "Hydrogen bond"],
+              answer: 2,
+              explanation: "Sodium forms Na⁺ and chlorine forms Cl⁻; their opposite charges attract."
+            }
+          ];
+        } else {
+          demoQuestions = [
+            {
+              question: `What is a useful first step when learning ${topicName}?`,
+              options: ["Understand the basic concepts", "Skip the foundations", "Memorize unrelated facts", "Avoid examples"],
+              answer: 0,
+              explanation: "Learning the foundational concepts helps you build an accurate understanding of a topic."
+            },
+            {
+              question: `Which approach can help you remember ${topicName}?`,
+              options: ["Never review", "Practise recall and review regularly", "Read once only", "Ignore mistakes"],
+              answer: 1,
+              explanation: "Active recall and spaced review can help strengthen learning."
+            },
+            {
+              question: `How can you check your understanding of ${topicName}?`,
+              options: ["Avoid all questions", "Read only the title", "Explain the ideas and answer practice questions", "Skip difficult ideas"],
+              answer: 2,
+              explanation: "Explaining ideas and answering questions helps reveal what you understand and what needs more practice."
+            }
+          ];
+        }
 
-  renderGeneratedQuiz(demoQuestions);
-  generatorStatus.textContent =
-    "Demo quiz ready! AI is temporarily unavailable, so sample questions are being shown.";
-} finally {
-
+        renderGeneratedQuiz(demoQuestions);
+        generatorStatus.textContent =
+          "Demo quiz ready. AI is unavailable right now, so sample questions are being shown.";
+      } finally {
         generateButton.disabled = false;
         generateButton.textContent = "✨ Generate Quiz";
       }
