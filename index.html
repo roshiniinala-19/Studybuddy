@@ -902,7 +902,37 @@
       const arrow = document.createElement("strong");
       arrow.textContent = "→";
       meta.append(metaText, arrow);
-      card.append(emoji, heading, description, meta);
+      const deleteBtn = document.createElement("span");
+deleteBtn.className = "delete-subject";
+deleteBtn.textContent = "🗑️";
+deleteBtn.title = "Delete subject";
+deleteBtn.setAttribute("role", "button");
+deleteBtn.setAttribute("aria-label", "Delete " + name);
+
+deleteBtn.addEventListener("click", function(event) {
+  event.stopPropagation();
+
+  if (!confirm('Delete "' + name + '" from your dashboard?')) return;
+
+  card.remove();
+
+  if (!subjectGrid.querySelector(".subject-click")) {
+    subjectGrid.innerHTML = '<p class="muted">No subjects yet. Add a subject to get started.</p>';
+  }
+
+  if (selectedSubject === name) {
+    selectedSubject = "";
+    generatorPanel.classList.remove("open");
+    generatedQuiz.innerHTML = "";
+    generatorStatus.textContent = "";
+  }
+
+  saveProgress();
+});
+
+card.style.position = "relative";
+deleteBtn.style.cssText = "position:absolute;top:10px;right:10px;cursor:pointer;padding:6px;z-index:2;";
+card.append(emoji, heading, description, meta, deleteBtn);
       card.addEventListener("click", function() {
         selectedSubject = name;
         generatorTitle.textContent = "Create a " + name + " quiz";
