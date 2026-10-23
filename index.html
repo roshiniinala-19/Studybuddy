@@ -1011,16 +1011,31 @@ card.append(emoji, heading, description, meta, deleteBtn);
           })
         });
 
-        const data = await response.json();
+        
+const responseText = await response.text();
 
-        if (!response.ok) {
-          throw new Error(data.error || "The server could not generate a quiz.");
-        }
+let data;
+try {
+  data = JSON.parse(responseText);
+} catch {
+  console.error("Server returned non-JSON:", responseText.slice(0, 500));
+  throw new Error(
+    `The server returned HTML or invalid JSON (HTTP ${response.status}). Check the Render deployment and server logs.`
+  );
+}
 
-        const questions = Array.isArray(data) ? data : data.questions;
-        if (!Array.isArray(questions) || questions.length === 0) {
-          throw new Error("The server returned no questions. Check the response format in server.js.");
-        }
+if (!response.ok) {
+  throw new Error(data.error || "The server could not generate a quiz.");
+}
+
+const questions = Array.isArray(data) ? data : data.questions;
+
+if (!Array.isArray(questions) || questions.length === 0) {
+  throw new Error(
+    "The server returned no questions. Check the response format in server.js."
+  );
+}
+
 
         renderGeneratedQuiz(questions);
         generatorStatus.textContent = "Your quiz is ready!";
