@@ -59,12 +59,20 @@ The answer is the zero-based index of the correct option.
 Each question must have exactly four options and one correct answer.
 `;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-3.8-flash",
-      contents: prompt,
-      config: { responseMimeType: "application/json" },
-    });
+    const timeout = new Promise((_, reject) => {
+  setTimeout(() => {
+    reject(new Error("Quiz generation timed out after 30 seconds."));
+  }, 30000);
+});
 
+const response = await Promise.race([
+  ai.models.generateContent({
+    model: "gemini-3.8-flash",
+    contents: prompt,
+    config: { responseMimeType: "application/json" },
+  }),
+  timeout,
+]);
     const result = JSON.parse(response.text);
 
     if (
@@ -86,10 +94,15 @@ Each question must have exactly four options and one correct answer.
     }
 
     res.json(result);
-  } catch (error) {
+    } catch (error) {
     console.error("Quiz generation failed:", error.message);
-    res.status(500).json({
-      error: "Quiz generation failed. Please check the server terminal.",
+
+    const timedOut = error.message.includes("timed out");
+
+    res.status(timedOut ? 504 : 500).json({
+      error: timedOut
+        ? "Quiz generation took too long. Please try again."
+        : "Quiz generation failed. Please try again.",
     });
   }
 });
