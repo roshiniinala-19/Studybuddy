@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudyBuddy - Science Quiz</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #eef0ff, #e0f7fa);
+      color: #25264a;
+      margin: 0;
+      padding: 25px 15px;
+    }
+
+    .card {
+      max-width: 600px;
+      margin: 25px auto;
+      padding: 28px;
+      background: white;
+      border-radius: 18px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      color: #5146d8;
+      margin-top: 0;
+    }
+
+    .subtitle {
+      color: #666;
+      line-height: 1.5;
+    }
+
+    .question-number {
+      color: #5146d8;
+      font-weight: bold;
+    }
+
+    #question {
+      font-size: 20px;
+      font-weight: bold;
+      line-height: 1.5;
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      background: #f7f7ff;
+      color: #25264a;
+      font-size: 16px;
+      text-align: left;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover:not(:disabled) {
+      background: #e8e6ff;
+      border-color: #5146d8;
+    }
+
+    button:disabled {
+      cursor: default;
+      opacity: 0.85;
+    }
+
+    button.correct {
+      background: #dcfce7;
+      border-color: #22a05a;
+      color: #166534;
+    }
+
+    button.wrong {
+      background: #fee2e2;
+      border-color: #dc2626;
+      color: #991b1b;
+    }
+
+    .primary-button {
+      background: #5146d8;
+      color: white;
+      border: none;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .primary-button:hover:not(:disabled) {
+      background: #3930a8;
+      color: white;
+    }
+
+    #feedback {
+      font-weight: bold;
+      line-height: 1.5;
+    }
+
+    progress {
+      width: 100%;
+      height: 16px;
+      accent-color: #5146d8;
+    }
+
+    .score-box {
+      background: #f3f2ff;
+      padding: 15px;
+      border-radius: 12px;
+      margin-top: 20px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .result-score {
+      font-size: 32px;
+      font-weight: bold;
+      color: #5146d8;
+    }
+
+    .topic-result {
+      padding: 12px;
+      margin: 8px 0;
+      background: #f7f7ff;
+      border-radius: 8px;
+    }
+
+    footer {
+      text-align: center;
+      color: #777;
+      font-size: 13px;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="card">
+    <h1>📚 StudyBuddy</h1>
+    <p class="subtitle">
+      Learn a little every day. Test your knowledge with this science quiz!
+    </p>
+
+    <section id="quizSection">
+      <p class="question-number" id="questionNumber"></p>
+
+      <progress id="progress" value="0" max="5"></progress>
+
+      <p id="question"></p>
+
+      <div id="options"></div>
+
+      <p id="feedback" aria-live="polite"></p>
+
+      <div class="score-box">
+        <strong>Your score</strong>
+        <p id="score">0 correct out of 0 answered</p>
+      </div>
+
+      <button
+        id="nextButton"
+        class="primary-button hidden"
+        onclick="nextQuestion()"
+      >
+        Next Question →
+      </button>
+    </section>
+
+    <section id="resultSection" class="hidden">
+      <h2>🎉 Quiz Completed!</h2>
+
+      <p>Your final score is:</p>
+      <p class="result-score" id="finalScore"></p>
+
+      <progress id="finalProgress" value="0" max="100"></progress>
+
+      <p id="resultMessage"></p>
+
+      <h3>Topics to revise</h3>
+      <div id="revisionList"></div>
+
+      <button class="primary-button" onclick="restartQuiz()">
+        Try Again
+      </button>
+    </section>
+  </main>
+
+  <footer>
+    StudyBuddy — Your personal learning companion
+  </footer>
+
+  <script>
+    const questions = [
+      {
+        topic: "Human Biology",
+        question: "Which organ pumps blood around the human body?",
+        options: ["Lungs", "Heart", "Brain"],
+        correct: 1
+      },
+      {
+        topic: "Plant Biology",
+        question: "What gas do plants absorb during photosynthesis?",
+        options: ["Oxygen", "Nitrogen", "Carbon dioxide"],
+        correct: 2
+      },
+      {
+        topic: "Chemistry",
+        question: "What is the chemical formula for water?",
+        options: ["CO2", "H2O", "O2"],
+        correct: 1
+      },
+      {
+        topic: "Astronomy",
+        question: "Which planet is known as the Red Planet?",
+        options: ["Mars", "Venus", "Jupiter"],
+        correct: 0
+      },
+      {
+        topic: "Physics",
+        question: "What force pulls objects toward Earth?",
+        options: ["Friction", "Magnetism", "Gravity"],
+        correct: 2
+      }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let hasAnswered = false;
+    let incorrectTopics = [];
+
+    function showQuestion() {
+      const q = questions[currentQuestion];
+
+      document.getElementById("questionNumber").textContent =
+        "Question " + (currentQuestion + 1) +
+        " of " + questions.length;
+
+      document.getElementById("progress").value =
+        currentQuestion;
+
+      document.getElementById("question").textContent =
+        q.question;
+
+      document.getElementById("feedback").textContent = "";
+
+      document.getElementById("nextButton").classList.add("hidden");
+
+      const optionsContainer = document.getElementById("options");
+      optionsContainer.innerHTML = "";
+
+      q.options.forEach(function(option, index) {
+        const button = document.createElement("button");
+
+        button.textContent = option;
+
+        button.addEventListener("click", function() {
+          checkAnswer(index);
+        });
+
+        optionsContainer.appendChild(button);
+      });
+
+      hasAnswered = false;
+      updateScore();
+    }
+
+    function checkAnswer(selectedIndex) {
+      if (hasAnswered) {
+        return;
+      }
+
+      hasAnswered = true;
+
+      const q = questions[currentQuestion];
+      const buttons = document.querySelectorAll("#options button");
+      const feedback = document.getElementById("feedback");
+
+      buttons.forEach(function(button) {
+        button.disabled = true;
+      });
+
+      if (selectedIndex === q.correct) {
+        score++;
+
+        buttons[selectedIndex].classList.add("correct");
+
+        feedback.textContent = "Correct! Great job! 🎉";
+        feedback.style.color = "#16803d";
+      } else {
+        buttons[selectedIndex].classList.add("wrong");
+        buttons[q.correct].classList.add("correct");
+
+        feedback.textContent =
+          "Not quite. The correct answer is: " +
+          q.options[q.correct] + ".";
+
+        feedback.style.color = "#c62828";
+
+        incorrectTopics.push(q.topic);
+      }
+
+      updateScore();
+
+      document.getElementById("progress").value =
+        currentQuestion + 1;
+
+      const nextButton = document.getElementById("nextButton");
+
+      if (currentQuestion === questions.length - 1) {
+        nextButton.textContent = "View Results →";
+      } else {
+        nextButton.textContent = "Next Question →";
+      }
+
+      nextButton.classList.remove("hidden");
+    }
+
+    function updateScore() {
+      const answered = hasAnswered
+        ? currentQuestion + 1
+        : currentQuestion;
+
+      document.getElementById("score").textContent =
+        score + " correct out of " + answered + " answered";
+    }
+
+    function nextQuestion() {
+      if (!hasAnswered) {
+        return;
+      }
+
+      currentQuestion++;
+
+      if (currentQuestion >= questions.length) {
+        showResults();
+        return;
+      }
+
+      showQuestion();
+    }
+
+    function showResults() {
+      document.getElementById("quizSection").classList.add("hidden");
+      document.getElementById("resultSection").classList.remove("hidden");
+
+      const percentage = Math.round(
+        (score / questions.length) * 100
+      );
+
+      document.getElementById("finalScore").textContent =
+        score + " / " + questions.length;
+
+      document.getElementById("finalProgress").value = percentage;
+
+      document.getElementById("resultMessage").textContent =
+        "You scored " + percentage + "%! " +
+        (percentage >= 80
+          ? "Excellent work!"
+          : percentage >= 60
+          ? "Good effort! Keep practising."
+          : "Keep learning. Every attempt helps!");
+
+      const revisionList = document.getElementById("revisionList");
+      revisionList.innerHTML = "";
+
+      const uniqueTopics = [...new Set(incorrectTopics)];
+
+      if (uniqueTopics.length === 0) {
+        revisionList.textContent =
+          "Amazing! You answered every question correctly.";
+      } else {
+        uniqueTopics.forEach(function(topic) {
+          const item = document.createElement("div");
+
+          item.className = "topic-result";
+          item.textContent = "📖 Review: " + topic;
+
+          revisionList.appendChild(item);
+        });
+      }
+    }
+
+    function restartQuiz() {
+      currentQuestion = 0;
+      score = 0;
+      hasAnswered = false;
+      incorrectTopics = [];
+
+      document.getElementById("resultSection").classList.add("hidden");
+      document.getElementById("quizSection").classList.remove("hidden");
+
+      showQuestion();
+    }
+
+    showQuestion();
+  </script>
+</body>
+</html>

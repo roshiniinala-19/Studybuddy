@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudyBuddy | Student Dashboard</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --purple: #6558e8;
+      --purple-light: #f0eeff;
+      --ink: #242542;
+      --muted: #777991;
+      --bg: #f7f8fc;
+      --border: #ececf4;
+      --green: #23a982;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+    }
+
+    button, input {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* LEFT SIDEBAR */
+
+    .sidebar {
+      width: 235px;
+      flex-shrink: 0;
+      background: white;
+      border-right: 1px solid var(--border);
+      padding: 28px 18px;
+    }
+
+    .brand {
+      font-size: 23px;
+      font-weight: bold;
+      margin: 0 0 38px 8px;
+      color: var(--purple);
+    }
+
+    .brand span {
+      color: #292746;
+    }
+
+    .nav-label {
+      color: #999bb0;
+      font-size: 11px;
+      font-weight: bold;
+      letter-spacing: 1.5px;
+      padding: 0 12px;
+      margin-bottom: 12px;
+    }
+
+    .nav-link {
+      display: block;
+      text-decoration: none;
+      color: #777991;
+      padding: 13px 12px;
+      border-radius: 10px;
+      margin: 5px 0;
+      font-size: 14px;
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+      color: var(--purple);
+      background: var(--purple-light);
+      font-weight: bold;
+    }
+
+    .sidebar-note {
+      margin-top: 42px;
+      padding: 16px;
+      border-radius: 14px;
+      background: #f3f1ff;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .sidebar-note p {
+      color: var(--muted);
+      margin-bottom: 0;
+    }
+
+    /* MAIN CONTENT */
+
+    .main {
+      flex: 1;
+      min-width: 0;
+      padding: 28px 34px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 28px;
+    }
+
+    .topbar p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .avatar {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      background: #e7e3ff;
+      border-radius: 50%;
+      font-size: 21px;
+    }
+
+    h1 {
+      font-size: 25px;
+      margin: 0;
+    }
+
+    h2 {
+      font-size: 17px;
+      margin: 0;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    /* WELCOME BANNER */
+
+    .welcome {
+      padding: 28px;
+      border-radius: 19px;
+      color: white;
+      background: linear-gradient(120deg, #6558e8, #9585fa);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .welcome h2 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .welcome p {
+      font-size: 14px;
+      line-height: 1.7;
+      margin: 0;
+      color: #f0edff;
+    }
+
+    .welcome .hero-icon {
+      font-size: 65px;
+      flex-shrink: 0;
+    }
+
+    .hero-button {
+      margin-top: 18px;
+      background: white;
+      color: var(--purple);
+      border: none;
+      border-radius: 9px;
+      padding: 11px 16px;
+      font-weight: bold;
+    }
+
+    /* STATISTICS */
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .stat {
+      padding: 20px;
+      border-radius: 15px;
+      background: white;
+      border: 1px solid var(--border);
+    }
+
+    .stat-icon {
+      font-size: 23px;
+    }
+
+    .stat-number {
+      display: block;
+      font-size: 25px;
+      font-weight: bold;
+      margin: 14px 0 5px;
+    }
+
+    /* GENERAL CARDS */
+
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+
+    .subject-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .subject {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      padding: 20px;
+    }
+
+    .subject-emoji {
+      font-size: 28px;
+      margin-bottom: 15px;
+    }
+
+    .subject h3 {
+      font-size: 15px;
+      margin: 0 0 6px;
+    }
+
+    .subject p {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .bar {
+      width: 100%;
+      height: 7px;
+      background: #ececf6;
+      border-radius: 20px;
+      overflow: hidden;
+      margin-top: 13px;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--purple);
+      border-radius: 20px;
+    }
+
+    .subject-meta {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 9px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* TWO-COLUMN LOWER AREA */
+
+    .bottom-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      padding: 22px;
+      margin-bottom: 20px;
+      min-width: 0;
+    }
+
+    .topic-form {
+      display: flex;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .topic-form input {
+      width: 100%;
+      min-width: 0;
+      border: 1px solid #dedfec;
+      border-radius: 8px;
+      padding: 11px;
+      outline-color: var(--purple);
+    }
+
+    .primary-button {
+      background: var(--purple);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 11px 14px;
+      white-space: nowrap;
+    }
+
+    .primary-button:hover {
+      background: #4b3fcb;
+    }
+
+    .task {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+      overflow-wrap: anywhere;
+    }
+
+    .task input {
+      accent-color: var(--purple);
+      width: 17px;
+      height: 17px;
+      flex-shrink: 0;
+    }
+
+    .task span {
+      flex: 1;
+    }
+
+    .task button {
+      border: none;
+      background: transparent;
+      color: #a0a1b4;
+      font-size: 18px;
+    }
+
+    .task button:hover {
+      color: #d14364;
+    }
+
+    .task.done span {
+      text-decoration: line-through;
+      color: #999bb0;
+    }
+
+    .progress-track {
+      height: 10px;
+      background: #ececf6;
+      border-radius: 20px;
+      overflow: hidden;
+      margin: 18px 0 10px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--green);
+      transition: width 0.3s;
+    }
+
+    .quiz-question {
+      margin: 22px 0 15px;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .answer {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 12px;
+      margin: 9px 0;
+      border: 1px solid #e5e5f0;
+      background: white;
+      color: var(--ink);
+      border-radius: 9px;
+    }
+
+    .answer:hover {
+      border-color: var(--purple);
+      background: #f8f7ff;
+    }
+
+    .answer:disabled {
+      cursor: default;
+    }
+
+    .answer.correct {
+      border-color: #23a982;
+      background: #e8faf3;
+    }
+
+    .answer.wrong {
+      border-color: #e66b7c;
+      background: #fff0f2;
+    }
+
+    #feedback {
+      font-size: 13px;
+      font-weight: bold;
+      line-height: 1.6;
+    }
+
+    .footer {
+      text-align: center;
+      color: #999bb0;
+      font-size: 12px;
+      padding: 18px 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    section[id] {
+      scroll-margin-top: 20px;
+    }
+
+    /* MOBILE-FRIENDLY LAYOUT */
+
+    @media (max-width: 1050px) {
+      .sidebar {
+        width: 190px;
+      }
+
+      .main {
+        padding: 24px 20px;
+      }
+
+      .subject-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
+      .app {
+        display: block;
+      }
+
+      .sidebar {
+        width: 100%;
+        padding: 15px;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .brand {
+        margin: 0 0 14px;
+      }
+
+      .nav-label,
+      .sidebar-note {
+        display: none;
+      }
+
+      .nav-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+      }
+
+      .nav-link {
+        padding: 10px;
+        margin: 0;
+        font-size: 12px;
+      }
+
+      .main {
+        padding: 20px 14px;
+      }
+
+      .stats {
+        gap: 8px;
+      }
+
+      .stat {
+        padding: 13px;
+      }
+
+      .stat-number {
+        font-size: 21px;
+      }
+
+      .welcome {
+        padding: 22px;
+      }
+
+      .welcome h2 {
+        font-size: 20px;
+      }
+
+      .welcome .hero-icon {
+        font-size: 42px;
+      }
+
+      .subject-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .bottom-grid {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+
+      .topbar {
+        align-items: flex-start;
+      }
+
+      .profile span:last-child {
+        display: none;
+      }
+    }
+
+    .subject-form {
+      display: flex;
+      gap: 10px;
+      margin: 0 0 18px;
+    }
+
+    .subject-form input,
+    .generator-form input,
+    .generator-form select {
+      width: 100%;
+      min-width: 0;
+      border: 1px solid #dedfec;
+      border-radius: 8px;
+      padding: 11px;
+      outline-color: var(--purple);
+      background: white;
+    }
+
+    .subject-form button,
+    .generator-form button {
+      background: var(--purple);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 11px 14px;
+      white-space: nowrap;
+    }
+
+    .subject-click {
+      width: 100%;
+      text-align: left;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      padding: 20px;
+      background: white;
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .subject-click:hover {
+      border-color: var(--purple);
+      box-shadow: 0 5px 18px rgba(101, 88, 232, 0.09);
+    }
+
+    .subject-click h3 {
+      margin: 0 0 7px;
+      font-size: 15px;
+    }
+
+    .subject-click p {
+      color: var(--muted);
+      font-size: 12px;
+      margin: 0 0 14px;
+    }
+
+    .subject-emoji {
+      font-size: 28px;
+      margin-bottom: 15px;
+    }
+
+    .generator-panel {
+      display: none;
+      margin: 0 0 24px;
+      padding: 22px;
+      border-radius: 15px;
+      background: white;
+      border: 1px solid var(--border);
+    }
+
+    .generator-panel.open {
+      display: block;
+    }
+
+    .generator-form {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .generator-form label {
+      display: grid;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .generator-form input[type="file"] {
+      font-weight: normal;
+    }
+
+    .generated-question {
+      padding: 15px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .generated-question h3 {
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .generated-option {
+      display: block;
+      margin: 8px 0;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
+    .notice {
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    @media (max-width: 520px) {
+      .subject-form {
+        flex-direction: column;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="app">
+
+    <aside class="sidebar">
+      <div class="brand">✦ Study<span>Buddy</span></div>
+
+      <div class="nav-label">WORKSPACE</div>
+
+      <nav class="nav-links">
+        <a class="nav-link active" href="#dashboard">🏠 Dashboard</a>
+        <a class="nav-link" href="#subjects">📚 My Subjects</a>
+        <a class="nav-link" href="#study-plan">✓ Study Plan</a>
+        <a class="nav-link" href="#quiz">🧠 Quick Quiz</a>
+      </nav>
+
+      <div class="sidebar-note">
+        <strong>💡 Study tip</strong>
+        <p>Small, consistent study sessions can make learning easier. Start with one topic today!</p>
+      </div>
+    </aside>
+
+    <main class="main" id="dashboard">
+
+      <div class="topbar">
+        <div>
+          <h1>My Dashboard</h1>
+          <p>Your personal learning space</p>
+        </div>
+
+        <div class="profile">
+          <div class="avatar">🎓</div>
+          <span>Student</span>
+        </div>
+      </div>
+
+      <section class="welcome">
+        <div>
+          <h2>Welcome back, learner! 👋</h2>
+          <p>Every topic you learn takes you one step forward.<br>
+          Let's make today count!</p>
+          <button class="hero-button"
+            onclick="document.getElementById('study-plan').scrollIntoView()">
+            Continue Learning →
+          </button>
+        </div>
+        <div class="hero-icon">📖</div>
+      </section>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-icon">📚</div>
+          <span class="stat-number" id="totalStat">0</span>
+          <span class="muted">Study topics</span>
+        </div>
+
+        <div class="stat">
+          <div class="stat-icon">✅</div>
+          <span class="stat-number" id="doneStat">0</span>
+          <span class="muted">Topics completed</span>
+        </div>
+
+        <div class="stat">
+          <div class="stat-icon">🎯</div>
+          <span class="stat-number" id="percentStat">0%</span>
+          <span class="muted">Overall progress</span>
+        </div>
+      </div>
+
+      <section id="subjects">
+        <div class="section-heading">
+          <h2>My Subjects</h2>
+          <span class="muted">Add a subject, then click its card to make a quiz</span>
+        </div>
+
+        <form class="subject-form" id="subjectForm">
+          <input id="subjectInput" type="text" maxlength="60"
+            placeholder="Enter a subject (e.g. Biology)" required
+            aria-label="Subject name">
+          <button type="submit">+ Add Subject</button>
+        </form>
+
+        <div class="subject-grid" id="subjectGrid">
+          <p class="muted">Add your first subject above.</p>
+        </div>
+      </section>
+
+      <section class="generator-panel" id="generatorPanel" aria-live="polite">
+        <div class="section-heading">
+          <h2 id="generatorTitle">Create a quiz</h2>
+          <button type="button" class="primary-button" id="closeGenerator">Close</button>
+        </div>
+        <p class="muted">Choose a topic and quiz settings. You can also select study material.</p>
+
+        <form class="generator-form" id="generatorForm">
+          <label>
+            Topic
+            <input id="quizTopic" type="text" maxlength="150"
+              placeholder="e.g. Photosynthesis" required>
+          </label>
+
+          <label>
+            Difficulty
+            <select id="quizDifficulty">
+              <option value="easy">Easy</option>
+              <option value="medium" selected>Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </label>
+
+          <label>
+            Number of questions
+            <select id="quizCount">
+              <option value="3">3 questions</option>
+              <option value="5" selected>5 questions</option>
+              <option value="10">10 questions</option>
+            </select>
+          </label>
+
+          <label>
+            Study material (optional)
+            <input id="studyFile" type="file"
+              accept=".txt,.md,.pdf,.doc,.docx">
+          </label>
+          <p class="notice" id="fileNotice">The file picker is ready. File-based quiz generation needs the server upload support to be added separately; topic-based generation can be used now.</p>
+
+          <button type="submit" id="generateButton">✨ Generate Quiz</button>
+        </form>
+
+        <p class="notice" id="generatorStatus" role="status"></p>
+        <div id="generatedQuiz"></div>
+        <div id="quizHistory" class="notice" aria-live="polite"></div>
+      </section>
+
+      <div class="bottom-grid">
+
+        <section id="study-plan" class="card">
+          <h2>✓ Today's Study Plan</h2>
+          <p class="muted">Add topics and check them off as you learn.</p>
+
+          <form class="topic-form" id="topicForm">
+            <input id="topicInput"
+              placeholder="e.g. Algebra basics"
+              aria-label="New study topic"
+              maxlength="100">
+            <button class="primary-button" type="submit">+ Add</button>
+          </form>
+
+          <div id="tasks"></div>
+
+          <div class="progress-track">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+
+          <p class="muted" id="progressText" aria-live="polite">
+            0% completed — add your first topic!
+          </p>
+        </section>
+
+        <section id="quiz" class="card">
+          <h2>🧠 Quick Knowledge Check</h2>
+          <p class="muted">Test your web development knowledge.</p>
+
+          <p class="quiz-question">
+            Which language is used to style a website?
+          </p>
+
+          <div id="answers">
+            <button class="answer" data-answer="HTML">A. HTML</button>
+            <button class="answer" data-answer="CSS">B. CSS</button>
+            <button class="answer" data-answer="Python">C. Python</button>
+          </div>
+
+          <p id="feedback" aria-live="polite"></p>
+          <button class="primary-button" id="retryButton" hidden>
+            Try Again
+          </button>
+        </section>
+
+      </div>
+
+      <div class="footer">
+        Made with 💜 by Team StudyBuddy | Learn a little every day
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+
+    // StudyBuddy progress is saved in this browser using localStorage.
+    const STORAGE_KEY = "studybuddy-progress-v1";
+    let savedProgress = loadProgress();
+    let quizHistory = Array.isArray(savedProgress.quizHistory) ? savedProgress.quizHistory : [];
+
+    function loadProgress() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+      } catch (error) {
+        console.warn("Could not load saved StudyBuddy progress:", error);
+        return {};
+      }
+    }
+
+    function saveProgress() {
+      const subjects = Array.from(document.querySelectorAll("#subjectGrid .subject-click h3"))
+        .map(function(heading) { return heading.textContent; });
+      const tasksToSave = Array.from(document.querySelectorAll("#tasks .task"))
+        .map(function(item) {
+          return {
+            topic: item.querySelector("span").textContent,
+            done: item.querySelector('input[type="checkbox"]').checked
+          };
+        });
+      const payload = { subjects: subjects, tasks: tasksToSave, quizHistory: quizHistory };
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+        savedProgress = payload;
+      } catch (error) {
+        console.warn("Could not save StudyBuddy progress:", error);
+      }
+      renderQuizHistory();
+    }
+
+    // Dynamic subjects
+    const subjectForm = document.getElementById("subjectForm");
+    const subjectInput = document.getElementById("subjectInput");
+    const subjectGrid = document.getElementById("subjectGrid");
+    const generatorPanel = document.getElementById("generatorPanel");
+    const generatorTitle = document.getElementById("generatorTitle");
+    const quizTopicInput = document.getElementById("quizTopic");
+    const generatorForm = document.getElementById("generatorForm");
+    const generatorStatus = document.getElementById("generatorStatus");
+    const generatedQuiz = document.getElementById("generatedQuiz");
+    let selectedSubject = "";
+
+    const subjectIcons = ["📚", "🧪", "📐", "🌱", "💻", "🌍", "🎨", "🔭"];
+
+    function createSubject(name, shouldSave) {
+      const exists = Array.from(subjectGrid.querySelectorAll(".subject-click h3"))
+        .some(function(heading) { return heading.textContent.toLowerCase() === name.toLowerCase(); });
+      if (exists) return;
+
+      if (subjectGrid.querySelector(".muted")) subjectGrid.innerHTML = "";
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = "subject-click";
+      const emoji = document.createElement("div");
+      emoji.className = "subject-emoji";
+      emoji.textContent = subjectIcons[subjectGrid.children.length % subjectIcons.length];
+      const heading = document.createElement("h3");
+      heading.textContent = name;
+      const description = document.createElement("p");
+      description.textContent = "Click to choose a topic and generate a quiz.";
+      const meta = document.createElement("div");
+      meta.className = "subject-meta";
+      const metaText = document.createElement("span");
+      metaText.textContent = "Ready to study";
+      const arrow = document.createElement("strong");
+      arrow.textContent = "→";
+      meta.append(metaText, arrow);
+      card.append(emoji, heading, description, meta);
+      card.addEventListener("click", function() {
+        selectedSubject = name;
+        generatorTitle.textContent = "Create a " + name + " quiz";
+        quizTopicInput.value = "";
+        generatedQuiz.innerHTML = "";
+        generatorStatus.textContent = "";
+        generatorPanel.classList.add("open");
+        generatorPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+        quizTopicInput.focus();
+      });
+      subjectGrid.appendChild(card);
+      if (shouldSave !== false) saveProgress();
+    }
+
+    subjectForm.addEventListener("submit", function(event) {
+      event.preventDefault();
+      const name = subjectInput.value.trim();
+      if (!name) return;
+      const exists = Array.from(subjectGrid.querySelectorAll(".subject-click h3"))
+        .some(function(heading) { return heading.textContent.toLowerCase() === name.toLowerCase(); });
+      if (exists) {
+        alert("That subject is already on your dashboard.");
+        return;
+      }
+      createSubject(name, true);
+      subjectInput.value = "";
+      subjectInput.focus();
+    });
+
+    document.getElementById("closeGenerator").addEventListener("click", function() {
+      generatorPanel.classList.remove("open");
+    });
+
+    const studyFileInput = document.getElementById("studyFile");
+    studyFileInput.addEventListener("change", function() {
+      const file = studyFileInput.files[0];
+      if (!file) {
+        document.getElementById("fileNotice").textContent =
+          "The file picker is ready. File-based quiz generation needs the server upload support to be added separately; topic-based generation can be used now.";
+        return;
+      }
+      document.getElementById("fileNotice").textContent =
+        "Selected: " + file.name + ". Topic-based generation is ready; the current server does not yet read uploaded files.";
+    });
+
+    generatorForm.addEventListener("submit", async function(event) {
+      event.preventDefault();
+
+      const topic = quizTopicInput.value.trim();
+      if (!topic) {
+        alert("Please enter a topic.");
+        return;
+      }
+
+      if (studyFileInput.files.length > 0) {
+        generatorStatus.textContent =
+          "The current server endpoint does not process uploaded files yet. Please remove the file and generate a topic-based quiz, or update server.js to support uploads.";
+        return;
+      }
+
+      const generateButton = document.getElementById("generateButton");
+      generateButton.disabled = true;
+      generateButton.textContent = "Generating...";
+      generatorStatus.textContent = "Asking StudyBuddy AI to create your quiz...";
+      generatedQuiz.innerHTML = "";
+
+      try {
+        const response = await fetch("/api/quiz", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            subject: selectedSubject,
+            topic: topic,
+            difficulty: document.getElementById("quizDifficulty").value,
+            count: Number(document.getElementById("quizCount").value)
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "The server could not generate a quiz.");
+        }
+
+        const questions = Array.isArray(data) ? data : data.questions;
+        if (!Array.isArray(questions) || questions.length === 0) {
+          throw new Error("The server returned no questions. Check the response format in server.js.");
+        }
+
+        renderGeneratedQuiz(questions);
+        generatorStatus.textContent = "Your quiz is ready!";
+      } catch (error) {
+        generatorStatus.textContent =
+          "Could not generate the quiz. Make sure the server is running with npm start. Details: " +
+          error.message;
+      } finally {
+        generateButton.disabled = false;
+        generateButton.textContent = "✨ Generate Quiz";
+      }
+    });
+
+    function renderGeneratedQuiz(questions) {
+      generatedQuiz.innerHTML = "";
+      const quizResult = {
+        subject: selectedSubject || "General",
+        topic: quizTopicInput.value.trim(),
+        difficulty: document.getElementById("quizDifficulty").value,
+        total: questions.length,
+        answered: {},
+        correct: 0,
+        missed: [],
+        saved: false
+      };
+      const resultsPanel = document.createElement("section");
+      resultsPanel.className = "notice";
+      resultsPanel.style.display = "none";
+      resultsPanel.style.marginTop = "18px";
+      resultsPanel.style.padding = "16px";
+      resultsPanel.style.background = "#f4f2ff";
+      resultsPanel.style.borderRadius = "12px";
+
+      questions.forEach(function(question, index) {
+        const wrapper = document.createElement("div");
+        wrapper.className = "generated-question";
+
+        const title = document.createElement("h3");
+        title.textContent = (index + 1) + ". " +
+          (question.question || question.text || "Question");
+        wrapper.appendChild(title);
+
+        const options = Array.isArray(question.options) ? question.options : [];
+        options.forEach(function(option, optionIndex) {
+          const label = document.createElement("label");
+          label.className = "generated-option";
+
+          const radio = document.createElement("input");
+          radio.type = "radio";
+          radio.name = "generated-question-" + index;
+          radio.value = String(optionIndex);
+          radio.style.marginRight = "8px";
+
+          const optionText = typeof option === "string"
+            ? option
+            : (option.text || option.label || JSON.stringify(option));
+
+          label.append(radio, document.createTextNode(optionText));
+          wrapper.appendChild(label);
+        });
+
+        const feedback = document.createElement("p");
+        feedback.className = "notice";
+        wrapper.appendChild(feedback);
+
+        const checkButton = document.createElement("button");
+        checkButton.type = "button";
+        checkButton.className = "primary-button";
+        checkButton.textContent = "Check answer";
+        checkButton.addEventListener("click", function() {
+          const chosen = wrapper.querySelector('input[type="radio"]:checked');
+          if (!chosen) {
+            feedback.textContent = "Choose an answer first.";
+            return;
+          }
+
+          const correct = question.answer ?? question.correctAnswer ?? question.correct_answer ?? question.answerIndex ?? question.correctOption;
+          const selectedOption = options[Number(chosen.value)];
+          const selectedText = typeof selectedOption === "string"
+            ? selectedOption
+            : (selectedOption && (selectedOption.text || selectedOption.label || selectedOption.option) || "");
+          const selectedLetter = String.fromCharCode(65 + Number(chosen.value));
+          let isCorrect = false;
+
+          if (typeof correct === "number") {
+            isCorrect = Number(chosen.value) === correct;
+          } else if (typeof correct === "string") {
+            const normalizedCorrect = correct.trim().toLowerCase().replace(/^[a-d][).:\s-]+/, "");
+            isCorrect = selectedText.trim().toLowerCase() === correct.trim().toLowerCase() ||
+              selectedLetter.toLowerCase() === correct.trim().toLowerCase() ||
+              selectedText.trim().toLowerCase() === normalizedCorrect;
+          } else if (Array.isArray(correct)) {
+            isCorrect = correct.some(function(value) {
+              return String(value).trim().toLowerCase() === selectedText.trim().toLowerCase() ||
+                String(value).trim().toLowerCase() === selectedLetter.toLowerCase();
+            });
+          }
+
+          const explanation = question.explanation || question.reason || "Review this question's concept and try a similar practice question.";
+          feedback.textContent = isCorrect
+            ? "Correct! " + explanation
+            : "Not quite. " + explanation;
+          feedback.style.color = isCorrect ? "#16835f" : "#d14364";
+          if (quizResult.answered[index]) return;
+          quizResult.answered[index] = true;
+          checkButton.disabled = true;
+          if (isCorrect) {
+            quizResult.correct++;
+          } else {
+            quizResult.missed.push({
+              question: question.question || question.text || ("Question " + (index + 1)),
+              explanation: explanation
+            });
+          }
+          const answeredCount = Object.keys(quizResult.answered).length;
+          if (answeredCount === quizResult.total && !quizResult.saved) {
+            quizResult.saved = true;
+            const percentage = Math.round((quizResult.correct / quizResult.total) * 100);
+            quizHistory.unshift({
+              subject: quizResult.subject,
+              topic: quizResult.topic,
+              difficulty: quizResult.difficulty,
+              score: quizResult.correct,
+              total: quizResult.total,
+              percentage: percentage,
+              missed: quizResult.missed,
+              date: new Date().toLocaleString()
+            });
+            quizHistory = quizHistory.slice(0, 20);
+            saveProgress();
+
+            resultsPanel.innerHTML = "";
+            const resultHeading = document.createElement("h3");
+            resultHeading.textContent = "Quiz results";
+            resultsPanel.appendChild(resultHeading);
+            const scoreLine = document.createElement("p");
+            scoreLine.style.fontWeight = "bold";
+            scoreLine.style.fontSize = "18px";
+            scoreLine.textContent = "Score: " + quizResult.correct + "/" + quizResult.total + " (" + percentage + "%)";
+            resultsPanel.appendChild(scoreLine);
+            const improvementHeading = document.createElement("h4");
+            improvementHeading.textContent = "Areas to improve";
+            resultsPanel.appendChild(improvementHeading);
+            if (quizResult.missed.length) {
+              const improvementList = document.createElement("ul");
+              quizResult.missed.forEach(function(item) {
+                const listItem = document.createElement("li");
+                listItem.textContent = item.question + " — " + item.explanation;
+                improvementList.appendChild(listItem);
+              });
+              resultsPanel.appendChild(improvementList);
+            } else {
+              const praise = document.createElement("p");
+              praise.textContent = "Great work! You answered every question correctly. Try a harder difficulty to keep learning.";
+              resultsPanel.appendChild(praise);
+            }
+            generatedQuiz.appendChild(resultsPanel);
+            resultsPanel.style.display = "block";
+            generatorStatus.textContent = "Quiz completed! Your score and areas to improve are shown below, and your progress has been saved.";
+            renderQuizHistory();
+          }
+        });
+
+        wrapper.appendChild(checkButton);
+        generatedQuiz.appendChild(wrapper);
+      });
+    }
+
+    let completed = 0;
+    let total = 0;
+    let quizAnswered = false;
+
+    const topicInput = document.getElementById("topicInput");
+    const tasks = document.getElementById("tasks");
+
+    document.getElementById("topicForm").addEventListener(
+      "submit",
+      function(event) {
+        event.preventDefault();
+        addTopic();
+      }
+    );
+
+    function addTopic() {
+      const topic = topicInput.value.trim();
+
+      if (!topic) {
+        alert("Please enter a topic first!");
+        topicInput.focus();
+        return;
+      }
+
+      const item = document.createElement("div");
+      item.className = "task";
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.setAttribute("aria-label", "Mark topic completed");
+
+      const label = document.createElement("span");
+      label.textContent = topic;
+
+      const removeButton = document.createElement("button");
+      removeButton.type = "button";
+      removeButton.textContent = "×";
+      removeButton.setAttribute("aria-label", "Remove topic");
+
+      checkbox.addEventListener("change", function() {
+        if (checkbox.checked) {
+          completed++;
+          item.classList.add("done");
+        } else {
+          completed--;
+          item.classList.remove("done");
+        }
+
+        updateProgress();
+        saveProgress();
+      });
+
+      removeButton.addEventListener("click", function() {
+        if (checkbox.checked) {
+          completed--;
+        }
+
+        total--;
+        item.remove();
+        updateProgress();
+        saveProgress();
+      });
+
+      item.append(checkbox, label, removeButton);
+      tasks.appendChild(item);
+
+      total++;
+      topicInput.value = "";
+
+      updateProgress();
+      saveProgress();
+      topicInput.focus();
+    }
+
+    function updateProgress() {
+      const percent = total === 0
+        ? 0
+        : Math.round(completed / total * 100);
+
+      document.getElementById("progressFill").style.width =
+        percent + "%";
+
+      document.getElementById("progressText").textContent =
+        total === 0
+          ? "0% completed — add your first topic!"
+          : percent + "% completed — " +
+            completed + " of " + total + " topics finished.";
+
+      document.getElementById("totalStat").textContent = total;
+      document.getElementById("doneStat").textContent = completed;
+      document.getElementById("percentStat").textContent =
+        percent + "%";
+    }
+
+    function renderQuizHistory() {
+      const historyElement = document.getElementById("quizHistory");
+      if (!historyElement) return;
+      historyElement.innerHTML = "";
+      const heading = document.createElement("strong");
+      heading.textContent = "Saved quiz history";
+      historyElement.appendChild(heading);
+      if (!quizHistory.length) {
+        const empty = document.createElement("p");
+        empty.textContent = "Completed quiz scores will appear here.";
+        historyElement.appendChild(empty);
+        return;
+      }
+      quizHistory.forEach(function(result) {
+        const row = document.createElement("p");
+        row.textContent = result.topic + " (" + result.subject + "): " + result.score + "/" + result.total +
+          (typeof result.percentage === "number" ? " (" + result.percentage + "%)" : "") + " — " + result.date;
+        historyElement.appendChild(row);
+        if (Array.isArray(result.missed) && result.missed.length) {
+          const improve = document.createElement("p");
+          improve.style.marginLeft = "12px";
+          improve.textContent = "Areas to improve: " + result.missed.map(function(item) { return item.question; }).join("; ");
+          historyElement.appendChild(improve);
+        }
+      });
+    }
+
+    function restoreProgress() {
+      const subjects = Array.isArray(savedProgress.subjects) ? savedProgress.subjects : [];
+      subjects.forEach(function(name) { createSubject(name, false); });
+      const savedTasks = Array.isArray(savedProgress.tasks) ? savedProgress.tasks : [];
+      savedTasks.forEach(function(task) {
+        topicInput.value = task.topic;
+        addTopic();
+        const lastTask = tasks.lastElementChild;
+        const checkbox = lastTask && lastTask.querySelector('input[type="checkbox"]');
+        if (checkbox && task.done) {
+          checkbox.checked = true;
+          checkbox.dispatchEvent(new Event("change"));
+        }
+      });
+      renderQuizHistory();
+      updateProgress();
+    }
+
+    restoreProgress();
+
+    document.querySelectorAll(".answer").forEach(function(button) {
+      button.addEventListener("click", function() {
+        if (quizAnswered) return;
+
+        quizAnswered = true;
+        const answer = button.dataset.answer;
+        const feedback = document.getElementById("feedback");
+
+        if (answer === "CSS") {
+          button.classList.add("correct");
+          feedback.textContent =
+            "Correct! CSS controls the appearance of websites. 🎉";
+          feedback.style.color = "#16835f";
+        } else {
+          button.classList.add("wrong");
+          feedback.textContent =
+            "Not quite! CSS is used to style websites. Keep learning!";
+          feedback.style.color = "#d14364";
+
+          document.querySelector('[data-answer="CSS"]')
+            .classList.add("correct");
+        }
+
+        document.querySelectorAll(".answer").forEach(function(item) {
+          item.disabled = true;
+        });
+
+        document.getElementById("retryButton").hidden = false;
+      });
+    });
+
+    document.getElementById("retryButton").addEventListener(
+      "click",
+      function() {
+        quizAnswered = false;
+
+        document.querySelectorAll(".answer").forEach(function(button) {
+          button.disabled = false;
+          button.classList.remove("correct", "wrong");
+        });
+
+        document.getElementById("feedback").textContent = "";
+        this.hidden = true;
+      }
+    );
+
+    document.querySelectorAll(".nav-link").forEach(function(link) {
+      link.addEventListener("click", function() {
+        document.querySelectorAll(".nav-link").forEach(function(item) {
+          item.classList.remove("active");
+        });
+
+        this.classList.add("active");
+      });
+    });
+  </script>
+</body>
+</html>
