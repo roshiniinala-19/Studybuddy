@@ -1039,11 +1039,53 @@ if (!Array.isArray(questions) || questions.length === 0) {
 
         renderGeneratedQuiz(questions);
         generatorStatus.textContent = "Your quiz is ready!";
-      } catch (error) {
-        generatorStatus.textContent =
-          "Could not generate the quiz. Make sure the server is running with npm start. Details: " +
-          error.message;
-      } finally {
+      
+} catch (error) {
+  console.error("AI quiz unavailable; using demo quiz:", error);
+
+  const topicName = quizTopicInput.value.trim();
+
+  const demoQuestions = [
+    {
+      question: `What is the best first step when learning ${topicName}?`,
+      options: [
+        "Understand its basic concepts and definitions",
+        "Skip the introduction",
+        "Memorize random facts without context",
+        "Avoid practising the topic"
+      ],
+      answer: 0,
+      explanation: "Start by understanding the foundations of the topic."
+    },
+    {
+      question: `Which method can help you remember ${topicName}?`,
+      options: [
+        "Never reviewing your notes",
+        "Practising recall and reviewing regularly",
+        "Reading once and never revisiting it",
+        "Ignoring mistakes"
+      ],
+      answer: 1,
+      explanation: "Active recall and spaced review help reinforce learning."
+    },
+    {
+      question: `How can you check your understanding of ${topicName}?`,
+      options: [
+        "Avoid all questions",
+        "Only look at the title",
+        "Explain the ideas in your own words and practise questions",
+        "Skip anything you find difficult"
+      ],
+      answer: 2,
+      explanation: "Explaining concepts and practising questions helps reveal what you understand."
+    }
+  ];
+
+  renderGeneratedQuiz(demoQuestions);
+  generatorStatus.textContent =
+    "Demo quiz ready! AI is temporarily unavailable, so sample questions are being shown.";
+} finally {
+
         generateButton.disabled = false;
         generateButton.textContent = "✨ Generate Quiz";
       }
