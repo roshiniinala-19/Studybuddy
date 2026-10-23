@@ -1,27 +1,46 @@
+
 import express from "express";
 import dotenv from "dotenv";
 import { GoogleGenAI } from "@google/genai";
+import path from "path";
+import { fileURLToPath } from "url";
 
 dotenv.config();
 
-if (!process.env.GEMINI_API_KEY) {
-  console.error("Please add your API key to the .env file.");
-  process.exit(1);
-}
-
 const app = express();
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
+const PORT = process.env.PORT || 3000;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.use(express.json({ limit: "1mb" }));
+app.use(express.static(path.join(__dirname, "public")));
+
+const apiKey = process.env.GEMINI_API_KEY;
+const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
+
+// Check server status
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "ok",
+    aiConfigured: Boolean(apiKey),
+  });
 });
 
-app.use(express.json());
-app.use(express.static("."));
-
+// Generate quiz
 app.post("/api/quiz", async (req, res) => {
   try {
+    if (!ai) {
+      return res.status(500).json({
+        error: "GEMINI_API_KEY is not configured.",
+      });
+    }
+
     const topic = String(req.body.topic || "").trim();
-    const difficulty = String(req.body.difficulty || "medium");
-    const count = Number(req.body.count || 5);
+    const difficulty = String(
+      req.body.difficulty || "medium"
+    ).toLowerCase();
+    const count = Number(req.body.count ?? 5);
 
     if (!topic || topic.length > 200) {
       return res.status(400).json({
@@ -30,7 +49,9 @@ app.post("/api/quiz", async (req, res) => {
     }
 
     if (!["easy", "medium", "hard"].includes(difficulty)) {
-      return res.status(400).json({ error: "Invalid difficulty." });
+      return res.status(400).json({
+        error: "Difficulty must be easy, medium, or hard.",
+      });
     }
 
     if (!Number.isInteger(count) || count < 1 || count > 10) {
@@ -40,10 +61,21 @@ app.post("/api/quiz", async (req, res) => {
     }
 
     const prompt = `
-Create exactly ${count} multiple-choice quiz questions about "${topic}".
-Difficulty: ${difficulty}.
-Make the questions educational and age-appropriate.
-Return only JSON in this format:
+Create exactly ${count} multiple-choice quiz questions
+specifically about this topic: "${topic}".
+
+Difficulty: ${difficulty}
+
+Requirements:
+- Questions must genuinely test the requested topic.
+- Make questions educational and age-appropriate.
+- Each question must have exactly four options.
+- There must be exactly one correct option.
+- The answer must be the zero-based index: 0, 1, 2, or 3.
+- Include a short explanation.
+- Return only valid JSON, with no Markdown.
+
+Use this exact structure:
 {
   "questions": [
     {
@@ -54,46 +86,73 @@ Return only JSON in this format:
     }
   ]
 }
-The answer is the zero-based index of the correct option.
-Each question must have exactly four options and one correct answer.
 `;
 
     const response = await ai.models.generateContent({
       model: "gemini-3.8-flash",
       contents: prompt,
-      config: { responseMimeType: "application/json" },
+      config: {
+        responseMimeType: "application/json",
+        temperature: 0.2,
+      },
     });
 
-    const result = JSON.parse(response.text);
-
-    if (
-      !Array.isArray(result.questions) ||
-      result.questions.length !== count ||
-      !result.questions.every(
-        (q) =>
-          typeof q.question === "string" &&
-          Array.isArray(q.options) &&
-          q.options.length === 4 &&
-          q.options.every((option) => typeof option === "string") &&
-          Number.isInteger(q.answer) &&
-          q.answer >= 0 &&
-          q.answer < 4 &&
-          typeof q.explanation === "string"
-      )
-    ) {
-      throw new Error("Invalid quiz response.");
+    if (!response.text) {
+      throw new Error("Gemini returned an empty response.");
     }
 
-    res.json(result);
+    let result;
+
+    try {
+      result = JSON.parse(response.text);
+    } catch {
+      throw new Error("Gemini returned invalid JSON.");
+    }
+
+    if (
+      !result ||
+      !Array.isArray(result.questions) ||
+      result.questions.length !== count
+    ) {
+      throw new Error(
+        `Gemini did not return exactly ${count} questions.`
+      );
+    }
+
+    for (const q of result.questions) {
+      if (
+        typeof q.question !== "string" ||
+        !Array.isArray(q.options) ||
+        q.options.length !== 4 ||
+        !q.options.every(
+          (option) => typeof option === "string"
+        ) ||
+        !Number.isInteger(q.answer) ||
+        q.answer < 0 ||
+        q.answer > 3
+      ) {
+        throw new Error("Gemini returned an incorrectly formatted question.");
+      }
+
+      if (typeof q.explanation !== "string") {
+        q.explanation = "";
+      }
+    }
+
+    return res.json({
+      topic,
+      difficulty,
+      questions: result.questions,
+    });
   } catch (error) {
-    console.error("Quiz generation failed:", error.message);
-    res.status(500).json({
-      error: "Quiz generation failed. Please check the server terminal.",
+    console.error("Quiz generation failed:", error);
+
+    return res.status(502).json({
+      error: "Quiz generation failed.",
+      details: error.message || "Unknown error",
     });
   }
 });
-
-const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`StudyBuddy running on port ${PORT}`);
